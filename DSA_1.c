@@ -1,179 +1,184 @@
-#include<stdio.h>
-#include<stdlib.h>
-typedef struct node
-{
+#include <stdio.h>
+#include <stdlib.h>
+
+
+struct tree {
     int data;
-    struct node *left;
-    struct node *right;
-}*node;
-node insert(node root);
-node delete_node(node root,int data);
-void preorder(node root);
-void inorder(node root);
-void postorder(node root);
-int main()
-{
-   node root=NULL;
-   int choice,data;
-   while(1)
-   {
-       printf("\n Enter the choice :");
-       scanf("%d",&choice);
-       switch(choice)
-       {
-           case 0:exit(0);break;
-           case 1:root=insert(root);
-           break;
-           case 2:
-               printf("enter data :\n");
-               scanf("%d",&data);
-               root=delete_node(root,data);
-           break;
-           case 3:preorder(root);
-           break;
-           case 4:inorder(root);
-           break;
-           case 5:postorder(root);
-           break;
-           default:
-            printf("invalid choice:\n");
-            break;
-       }
-   }
-   return 0;
-}
-node create()
-{
-    node newnode=(node)malloc(sizeof(struct node));
-    if(newnode==NULL)
-    {
-        printf("The memory is not allocated:\n");
-        return NULL;
-    }
-    printf("Enter the data :\n");
-    scanf("%d",&newnode->data);
-    newnode->left=newnode->right=NULL;
-    return newnode;
-}
-node insert(node root)
-{
-    node newnode=create();
-    node cur=root,parent=NULL;
-    if(root==NULL)
-    {
-        root=newnode;
-    }
-    else{
-        while(cur!=NULL)
-        {
-            parent=cur;
-            if(newnode->data<cur->data)
-            {
-                cur=cur->left;
-            }
-            else{
-                cur=cur->right;
-            }
-        }
-        if(newnode->data<parent->data)
-        {
-            parent->left=newnode;
-        }
-        else{
-            parent->right=newnode;
-        }
-    }
-    return root;
-}
-void preorder(node root)
-{
-    if(root!=NULL)
-    {
-        printf("%d ",root->data);
-        preorder(root->left);
-        preorder(root->right);
-    }
-}
-void inorder(node root)
-{
-    if(root!=NULL)
-    {
-        inorder(root->left);
-        printf("%d ",root->data);
-        inorder(root->right);
-    }
-}
-void postorder(node root)
-{
-    if(root!=NULL)
-    {
-        postorder(root->left);
-        postorder(root->right);
-        printf("%d ",root->data);
-    }
-}
-node delete_node(node root,int data)
-{
-    if(root==NULL)
-    {
-        printf("tree is empty :\n");
+    struct tree *left;
+    struct tree *right;
+};
+typedef struct tree TREE;
+
+
+TREE* insert_into_bst(TREE* root, int data);
+void inorder(TREE* root);
+void preorder(TREE* root);
+void postorder(TREE* root);
+TREE* delete_from_bst(TREE* root, int data);
+
+// Insert into BST
+TREE* insert_into_bst(TREE* root, int data) {
+    TREE *newnode, *currnode, *parent;
+
+    newnode = (TREE*)malloc(sizeof(TREE));
+    if (newnode == NULL) {
+        printf("Memory allocation failed\n");
         return root;
     }
-    else{
-        node cur=root,parent=NULL;
-        while(cur!=NULL&&data!=cur->data)
-        {
-            parent=cur;
-            if(data<cur->data)
-            {
-                cur=cur->left;
-            }
-            else{
-                cur=cur->right;
-            }
-        }
+    newnode->data = data;
+    newnode->left = NULL;
+    newnode->right = NULL;
 
-        if(cur==NULL)
-        {
-            printf("The element is not found:\n");
-            return root;
-        }
-        //node has two children
-        if(cur->left!=NULL&&cur->right!=NULL)
-        {
-            node sc=cur->right;
-            node sparent=cur;
-        while(sc->left!=NULL)
-        {
-            sparent=sc;
-            sc=sc->left;
-        }
-        cur->data=sc->data;
-        cur=sc;
-        parent=sparent;
-      }
-      //case 2 one child OR No child
-      node child;
-      if(cur->left!=NULL)
-      {
-          child=cur->left;
-      }
-      else{
-        child=cur->right;
-      }
-      if(parent==NULL)
-      {
-          free(cur);
-          return child;
-      }
-      if(parent->left==cur)
-      {
-          parent->left=child;
-      }
-      else{
-        parent->right=child;
-      }
-      free(cur);
+    if (root == NULL) {
+        root = newnode;
+        printf("Root node inserted into tree\n");
+        return root;
     }
+
+    currnode = root;
+    parent = NULL;
+    while (currnode != NULL) {
+        parent = currnode;
+        if (newnode->data < currnode->data)
+            currnode = currnode->left;
+        else
+            currnode = currnode->right;
+    }
+
+    if (newnode->data < parent->data)
+        parent->left = newnode;
+    else
+        parent->right = newnode;
+
+    printf("Node inserted successfully into the tree\n");
     return root;
+}
+
+// Traversals
+void inorder(TREE* troot) {
+    if (troot != NULL) {
+        inorder(troot->left);
+        printf("%d ", troot->data);
+        inorder(troot->right);
+    }
+}
+
+void preorder(TREE* troot) {
+    if (troot != NULL) {
+        printf("%d ", troot->data);
+        preorder(troot->left);
+        preorder(troot->right);
+    }
+}
+
+void postorder(TREE* troot) {
+    if (troot != NULL) {
+        postorder(troot->left);
+        postorder(troot->right);
+        printf("%d ", troot->data);
+    }
+}
+
+// Delete from BST
+TREE* delete_from_bst(TREE* root, int data) {
+    TREE *currnode, *parent, *successor, *p;
+
+    if (root == NULL) {
+        printf("Tree is empty\n");
+        return root;
+    }
+
+    parent = NULL;
+    currnode = root;
+    while (currnode != NULL && data != currnode->data) {
+        parent = currnode;
+        if (data < currnode->data)
+            currnode = currnode->left;
+        else
+            currnode = currnode->right;
+    }
+
+    if (currnode == NULL) {
+        printf("Item not found\n");
+        return root;
+    }
+
+    if (currnode->left == NULL)
+        p = currnode->right;
+    else if (currnode->right == NULL)
+        p = currnode->left;
+    else {
+        successor = currnode->right;
+        while (successor->left != NULL)
+            successor = successor->left;
+        successor->left = currnode->left;
+        p = currnode->right;
+    }
+
+    if (parent == NULL) {
+        free(currnode);
+        return p;
+    }
+
+    if (currnode == parent->left)
+        parent->left = p;
+    else
+        parent->right = p;
+
+    free(currnode);
+    return root;
+}
+
+// Main function
+int main() {
+    TREE *root = NULL;
+    int choice = 0;
+    int data =0;
+    int count = 0;
+    int a,b,c,d,k, q, e, w;
+
+    while (1) {
+        printf("\n******** Menu *************\n");
+        printf("1 - Insert into BST\n");
+        printf("2 - Inorder Traversal\n");
+        printf("3 - Preorder Traversal\n");
+        printf("4 - Postorder Traversal\n");
+        printf("5 - Delete from BST\n");
+        printf("6 - Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1:
+                printf("Enter data to insert: ");
+                scanf("%d", &data);
+                root = insert_into_bst(root, data);
+                break;
+            case 2:
+                printf("Inorder Traversal: ");
+                inorder(root);
+                printf("\n");
+                break;
+            case 3:
+                printf("Preorder Traversal: ");
+                preorder(root);
+                printf("\n");
+                break;
+            case 4:
+                printf("Postorder Traversal: ");
+                postorder(root);
+                printf("\n");
+                break;
+            case 5:
+                printf("Enter data to delete: ");
+                scanf("%d", &data);
+                root = delete_from_bst(root, data);
+                break;
+            case 6:
+                exit(0);
+            default:
+                printf("Invalid choice\n");
+        }
+    }
+    return 0;
 }
